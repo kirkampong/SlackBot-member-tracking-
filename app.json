@@ -1,0 +1,7 @@
+{
+  "name": "My Slack App",
+  "description": "BUilt using Node.js, express, postgreSQL",
+  "repository": "https://github.com/kirkampong/workOS-challenge",
+  "keywords": ["workOS", "node", "postgresql", "heroku"],
+  "website": "https://rocky-caverns-13536.herokuapp.com/"
+}

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../fragments/header.ejs %>
+</head>
+<body>
+  <% include ../fragments/nav.ejs %>
+  <div class="container">
+    <h2>Slack Workspace Users</h2>
+    <ul>
+        <% users.forEach(function(u) { %>
+            <li><%= u.name %></li>
+        <% }); %>
+    </ul>
+  </div>
+</body>
+</html>
