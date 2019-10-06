@@ -88,7 +88,7 @@ express()
       try {
         let userName = user.real_name;
         let userId = user.id;
-
+        let deleted = user.deleted;
         switch (eventType) {
           case "team_join":
             let joinQuery = `INSERT INTO Users(Name, Id) SELECT ('${userName}'),('${userId}') 
@@ -96,8 +96,13 @@ express()
             await client.query(joinQuery);
             break;
           case "user_change":
-            let updateQuery = `UPDATE Users SET Name = '${userName}' WHERE Id='${userId}'`;
-            await client.query(updateQuery);
+            if(deleted) {
+              let updateQuery = `DELETE FROM Users WHERE Id='${userId}'`;
+              await client.query(updateQuery);
+            } else {
+              let deleteQuery = `UPDATE Users SET Name = '${userName}' WHERE Id='${userId}'`;
+              await client.query(deleteQuery);
+            }
             break;
           default:
             console.error("Unrecognized event type received");
