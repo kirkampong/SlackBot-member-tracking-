@@ -54,6 +54,7 @@ express()
             console.error(err);
           }
         }
+        console.log("resultObj : " + JSON.stringify(resultObj));
         let members = resultObj.members;
 
         try{
@@ -79,6 +80,38 @@ express()
       });
     })
 
+    .get('/list_channels', async(req, res) => {
+      const client = await pool.connect();
+      const usersResult = await client.query('SELECT * FROM Users');
+      const users = {'users': (usersResult) ? usersResult.rows : null};
+      let userChannels = {};
+      let userIdList = [];
+      users.users.forEach((user) => {
+        userIdList.push(user.id);
+      });
+
+      let usersProcessed = 0;
+
+      userIdList.forEach(async (userId) => {
+        if (!(userId in userChannels)){
+          userChannels[userId] = [];
+        }
+
+        const result = await client.query(`SELECT Channel FROM Channels WHERE Id='${userId}'`);
+        result.rows.forEach((result) => {
+          let channel = result.channel;
+          userChannels[userId].push(channel);
+        });
+
+        usersProcessed++;
+
+        if(usersProcessed === userIdList.length){
+          client.release();
+          res.render('pages/channels', {'channels': userChannels, 'users': userIdList});
+        }
+      });
+    })
+
     .post('/users', async (req, res) => {
       console.log("event_received");
       const eventType = req.body.event.type;
@@ -89,6 +122,8 @@ express()
         let userName = user.real_name;
         let userId = user.id;
         let deleted = user.deleted;
+        let channelUserId = req.body.event.user;
+        let channelId = req.body.event.channel;
         switch (eventType) {
           case "team_join":
             let joinQuery = `INSERT INTO Users(Name, Id) SELECT ('${userName}'),('${userId}') 
@@ -103,6 +138,16 @@ express()
               let deleteQuery = `UPDATE Users SET Name = '${userName}' WHERE Id='${userId}'`;
               await client.query(deleteQuery);
             }
+            break;
+          case "member_joined_channel":
+            let member_joined = `INSERT INTO Channels(Id, Channel) SELECT ('${channelUserId}'),('${channelId}') WHERE NOT EXISTS 
+            (SELECT Id FROM Channels WHERE Id='${channelUserId}' AND Channel='${channelId}')`;
+            console.log("Query: " + member_joined);
+            await client.query(member_joined);
+            break;
+          case "member_left_channel":
+            let member_left_query = `DELETE FROM Channels WHERE Id='${channelUserId}' AND Channel='${channelId}'`;
+            await client.query( member_left_query);
             break;
           default:
             console.error("Unrecognized event type received");
