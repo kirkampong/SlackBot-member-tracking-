@@ -12,7 +12,7 @@
   * Calls slack's `user.list` api to get the list of current users in the workspace.
   
 * `.get("/list_channels", async (req,res)`:
-  * Dsiplays a list of channel memberships for each viewer in the Slack workspace.
+  * Dsiplays a list of channel memberships for each user in the Slack workspace.
 
 * `.post('/users', async (req, res)`:
   * Events Coming from Slack's EvenAPI are received here. The slack application is subscribed to `user-change`, `team_join`, `member_joined_channel` and `member_left_channel` events. The SQL db tables are updated accordingly. 
