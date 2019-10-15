@@ -10,10 +10,12 @@
 
 * `.get("/get_users", async (req,res)`:
   * Calls slack's `user.list` api to get the list of current users in the workspace.
-
+  
+* `.get("/list_channels", async (req,res)`:
+  * Dsiplays a list of channel memberships for each viewer in the Slack workspace.
 
 * `.post('/users', async (req, res)`:
-  * Events Coming from Slack's EvenAPI are received here. The slack application is subscribed to `user-change` and `team_join` events. The SQL db is updated accordingly. 
+  * Events Coming from Slack's EvenAPI are received here. The slack application is subscribed to `user-change`, `team_join`, `member_joined_channel` and `member_left_channel` events. The SQL db tables are updated accordingly. 
 
 ## Testing
 Tun `npm test` from the directory root to run `test.js`. This verifies that calls to slack apis work and are authorized.
